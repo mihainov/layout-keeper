@@ -15,6 +15,10 @@ struct MenuContent: View {
     @ObservedObject var model: AppModel
 
     var body: some View {
+        if let error = model.configError {
+            Text("⚠️ \(error)")
+            Divider()
+        }
         Text("Current: \(model.currentSource?.name ?? "unknown")")
         Text(model.currentSource?.id ?? "")
         if let activation = model.lastActivation {
@@ -42,6 +46,10 @@ struct MenuContent: View {
                 Text("\(bundleID) → \(model.name(ofSource: sourceID))")
             }
         }
+        Divider()
+        Button("Open Config Folder") { model.openConfigFolder() }
+        Button("Reload Config") { model.reloadConfig() }
+            .keyboardShortcut("r")
         Divider()
         Button("Quit") { NSApplication.shared.terminate(nil) }
             .keyboardShortcut("q")

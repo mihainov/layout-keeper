@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "enabled": true,
+  "defaultSourceID": "com.apple.keylayout.ABC",
+  "rules": {
+    "com.apple.Terminal": "com.apple.keylayout.ABC"
+  },
+  "ignore": [
+    "com.apple.Spotlight"
+  ],
+  "labels": {
+    "com.apple.keylayout.ABC": "EN",
+    "com.apple.keylayout.Bulgarian-Phonetic": "БГ"
+  },
+  "hud": {
+    "enabled": true,
+    "durationMs": 800
+  }
+}
