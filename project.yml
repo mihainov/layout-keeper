@@ -1,0 +1,60 @@
+name: LayoutKeeper
+options:
+  bundleIdPrefix: dev.local
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+targets:
+  LayoutKeeper:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/LayoutKeeper
+    info:
+      path: Resources/Info.plist
+      properties:
+        CFBundleName: LayoutKeeper
+        CFBundleDisplayName: LayoutKeeper
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSUIElement: true
+        LSMinimumSystemVersion: "13.0"
+        NSHumanReadableCopyright: ""
+    entitlements:
+      path: Resources/LayoutKeeper.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.local.LayoutKeeper
+        ENABLE_HARDENED_RUNTIME: YES
+        GENERATE_INFOPLIST_FILE: NO
+  LayoutKeeperTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/LayoutKeeperTests
+    dependencies:
+      - target: LayoutKeeper
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.local.LayoutKeeperTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/LayoutKeeper.app/Contents/MacOS/LayoutKeeper"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  LayoutKeeper:
+    build:
+      targets:
+        LayoutKeeper: all
+        LayoutKeeperTests: [test]
+    test:
+      targets:
+        - LayoutKeeperTests
