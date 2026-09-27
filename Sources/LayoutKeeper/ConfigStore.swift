@@ -35,6 +35,41 @@ final class ConfigStore {
         }
     }
 
+    enum UpdateError: LocalizedError {
+        case configInvalid
+        var errorDescription: String? { "Fix config.json and reload before changing settings from the menu." }
+    }
+
+    /// Reloads config.json, applies `change` and writes it back. Only the keys that change are rewritten;
+    /// unknown keys in the file are preserved. Refuses to touch a file that fails to load.
+    func update(_ change: (inout Config) -> Void) throws {
+        load()
+        guard lastError == nil else { throw UpdateError.configInvalid }
+        var updated = config
+        change(&updated)
+        guard updated != config else { return }
+
+        var object = (try? Data(contentsOf: fileURL))
+            .flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] } ?? [:]
+        let old = try Self.jsonObject(config)
+        let new = try Self.jsonObject(updated)
+        for key in Set(old.keys).union(new.keys) where (old[key] as? NSObject) != (new[key] as? NSObject) {
+            object[key] = new[key]
+        }
+        object["version"] = updated.version
+
+        let data = try JSONSerialization.data(withJSONObject: object,
+                                              options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
+        try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try data.write(to: fileURL, options: .atomic)
+        config = updated
+    }
+
+    private static func jsonObject(_ config: Config) throws -> [String: Any] {
+        let data = try Storage.makeEncoder().encode(config)
+        return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
+    }
+
     static func decode(_ data: Data) throws -> Config {
         try JSONDecoder().decode(Config.self, from: data)
     }

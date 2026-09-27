@@ -19,11 +19,13 @@ build: generate
 		-derivedDataPath $(DERIVED) -destination "platform=macOS,arch=arm64" -quiet build
 
 run: build
-	pkill -x $(APP_NAME) || true
+	@pkill -x $(APP_NAME) || true
+	@while pgrep -x $(APP_NAME) >/dev/null; do sleep 0.1; done
 	open $(APP_PATH)
 
 install: build
-	pkill -x $(APP_NAME) || true
+	@pkill -x $(APP_NAME) || true
+	@while pgrep -x $(APP_NAME) >/dev/null; do sleep 0.1; done
 	rm -rf $(INSTALL_DIR)/$(APP_NAME).app
 	cp -R $(APP_PATH) $(INSTALL_DIR)/
 	open $(INSTALL_DIR)/$(APP_NAME).app
