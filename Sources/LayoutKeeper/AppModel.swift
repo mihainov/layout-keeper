@@ -16,12 +16,14 @@ final class AppModel: ObservableObject {
 
     private let inputSources: InputSourceService
     let switcher: Switcher
+    private let hud = HUDController()
     private var terminateObserver: NSObjectProtocol?
 
     init(inputSources: InputSourceService = TISInputSourceService()) {
         self.inputSources = inputSources
         switcher = Switcher(inputSources: inputSources, configStore: ConfigStore(), stateStore: StateStore())
         switcher.onUpdate = { [weak self] _ in self?.sync() }
+        switcher.onAutomaticSwitch = { [weak self] sourceID in self?.showHUD(for: sourceID) }
         sources = inputSources.allSelectableKeyboardSources()
         sync()
         switcher.start()
@@ -136,6 +138,15 @@ final class AppModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    private func showHUD(for sourceID: String) {
+        let settings = switcher.configStore.config.hud
+        guard settings.enabled else { return }
+        if !sources.contains(where: { $0.id == sourceID }) {
+            sources = inputSources.allSelectableKeyboardSources()
+        }
+        hud.show(label(ofSource: sourceID), duration: max(0, Double(settings.durationMs)) / 1000)
+    }
 
     private func updateConfig(_ change: (inout Config) -> Void) {
         do {

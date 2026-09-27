@@ -19,6 +19,8 @@ final class Switcher {
 
     /// Called after the switcher handles an activation or a source change.
     var onUpdate: ((Activation?) -> Void)?
+    /// Called with the target source ID after an automatic switch on app activation.
+    var onAutomaticSwitch: ((String) -> Void)?
     private(set) var lastActivation: Activation?
 
     /// The app whose activation was handled most recently. Source changes are only recorded for this
@@ -66,7 +68,9 @@ final class Switcher {
             break
         case .switchTo(let target, _):
             if inputSources.current()?.id != target {
-                inputSources.select(id: target)
+                if inputSources.select(id: target) {
+                    onAutomaticSwitch?(target)
+                }
                 scheduleVerify(target: target, for: bundleID)
             }
         case .learnCurrent:

@@ -37,3 +37,7 @@ Resolution order when an app is activated: paused → ignore list → rule → m
 ## Launch at login
 
 Toggle **Launch at Login** in the menu. It uses `SMAppService.mainApp` and works reliably only when the app runs from `/Applications`, so install with `make install` first. If macOS asks for approval, the menu shows **Allow in Login Items Settings…**, which opens System Settings → General → Login Items.
+
+## On-screen indicator (HUD)
+
+After an automatic switch, a small overlay near the bottom of the screen with the mouse cursor shows the new layout's label (from `labels`, else its name). It is a non-activating panel that ignores the mouse, so it never takes focus. Manual switches don't show it, because macOS already shows its own indicator. Configure it with `hud.enabled` and `hud.durationMs`.
