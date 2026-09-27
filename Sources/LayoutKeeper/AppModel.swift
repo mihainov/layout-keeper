@@ -45,10 +45,21 @@ final class AppModel: ObservableObject {
 
     var isPaused: Bool { !config.enabled }
 
-    /// Menu bar title: the current layout's label, or nil to show the keyboard symbol.
+    /// Menu bar title: the current layout's short label, or nil to show the keyboard symbol.
     var menuBarLabel: String? {
-        guard !isPaused, let id = currentSource?.id else { return nil }
-        return config.labels[id]
+        guard let source = currentSource else { return nil }
+        let label = shortLabel(of: source)
+        return isPaused ? "\(label) ⏸\u{FE0E}" : label
+    }
+
+    /// `labels` entry, else the uppercased language code ("EN", "BG"), else the name.
+    func shortLabel(of source: InputSource) -> String {
+        config.labels[source.id] ?? source.languageCode?.uppercased() ?? source.name
+    }
+
+    func select(_ source: InputSource) {
+        inputSources.select(id: source.id)
+        sync()
     }
 
     var activeAppName: String? {
@@ -72,6 +83,7 @@ final class AppModel: ObservableObject {
     var isActiveAppIgnored: Bool { activeBundleID.map(config.ignore.contains) ?? false }
     var activeAppHasMemory: Bool { activeBundleID.map { memory[$0] != nil } ?? false }
 
+    /// Label for menus and the HUD: `labels` entry, else the localized name.
     func label(ofSource id: String) -> String {
         config.labels[id] ?? sources.first { $0.id == id }?.name ?? id
     }
@@ -167,6 +179,10 @@ final class AppModel: ObservableObject {
 
     private func sync() {
         currentSource = inputSources.current()
+        // A layout was added in System Settings since the list was read.
+        if let current = currentSource, !sources.contains(where: { $0.id == current.id }) {
+            sources = inputSources.allSelectableKeyboardSources()
+        }
         config = switcher.configStore.config
         memory = switcher.stateStore.state.memory
         activeBundleID = switcher.lastActivation?.bundleID

@@ -6,6 +6,8 @@ struct InputSource: Equatable, Hashable, Identifiable {
     let id: String
     /// `kTISPropertyLocalizedName`, e.g. "U.S.".
     let name: String
+    /// Primary language from `kTISPropertyInputSourceLanguages`, e.g. "en" or "bg".
+    var languageCode: String? = nil
 }
 
 /// Lists, reads and selects keyboard input sources. Kept behind a protocol so it can be mocked in tests.

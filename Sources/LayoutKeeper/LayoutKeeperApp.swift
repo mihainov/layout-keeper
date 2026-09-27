@@ -11,7 +11,7 @@ struct LayoutKeeperApp: App {
             if let label = model.menuBarLabel {
                 Text(label)
             } else {
-                Image(systemName: model.isPaused ? "keyboard.badge.ellipsis" : "keyboard")
+                Image(systemName: "keyboard")
             }
         }
     }
@@ -27,9 +27,17 @@ struct MenuContent: View {
         }
 
         Text(model.isPaused ? "Paused" : "Active")
-        Text("Layout: \(model.currentSource.map { model.label(ofSource: $0.id) } ?? "unknown")")
         if let app = model.activeAppName, let status = model.activeAppStatus {
             Text("\(app) — \(status)")
+        }
+        Divider()
+
+        // Replaces the system Input menu, so it can be hidden.
+        ForEach(model.sources) { source in
+            Toggle(source.name, isOn: Binding(
+                get: { model.currentSource?.id == source.id },
+                set: { _ in model.select(source) }
+            ))
         }
         Divider()
 

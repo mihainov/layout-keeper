@@ -70,7 +70,10 @@ Menu quick actions (Pause, Pin, Ignore) rewrite only the keys they change and ke
 
 ## Menu
 
-- Status, current layout, and the frontmost app with what applies to it (Rule / Memory / Default / Ignored).
+The menu bar shows the current layout's short label: the `labels` entry, else the language code (e.g. `EN`, `BG`). A `⏸` suffix means paused. The menu lists all layouts for switching, so it can replace the system Input menu. To hide that one, turn off **Show Input menu in menu bar** in System Settings → Keyboard → Text Input → Edit.
+
+- Layout list with the current one checked.
+- Status and the frontmost app with what applies to it (Rule / Memory / Default / Ignored).
 - Pause / Resume.
 - Pin current layout to the frontmost app, Ignore / Stop ignoring it, Forget its memory, Forget all memory.
 - Copy current layout ID, Open config folder, Reload config.

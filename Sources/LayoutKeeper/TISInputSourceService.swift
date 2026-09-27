@@ -43,7 +43,13 @@ final class TISInputSourceService: InputSourceService {
     private static func makeInputSource(_ source: TISInputSource) -> InputSource? {
         guard let id = stringProperty(source, kTISPropertyInputSourceID) else { return nil }
         let name = stringProperty(source, kTISPropertyLocalizedName) ?? id
-        return InputSource(id: id, name: name)
+        return InputSource(id: id, name: name, languageCode: firstLanguage(source))
+    }
+
+    private static func firstLanguage(_ source: TISInputSource) -> String? {
+        guard let pointer = TISGetInputSourceProperty(source, kTISPropertyInputSourceLanguages) else { return nil }
+        let languages = Unmanaged<CFArray>.fromOpaque(pointer).takeUnretainedValue() as? [String]
+        return languages?.first
     }
 
     private static func stringProperty(_ source: TISInputSource, _ key: CFString) -> String? {
