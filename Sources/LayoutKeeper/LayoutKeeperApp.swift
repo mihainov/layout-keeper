@@ -57,6 +57,15 @@ struct MenuContent: View {
             .keyboardShortcut("r")
         Divider()
 
+        Toggle("Launch at Login", isOn: Binding(
+            get: { model.launchAtLogin },
+            set: { _ in model.toggleLaunchAtLogin() }
+        ))
+        if model.launchAtLoginNeedsApproval {
+            Button("Allow in Login Items Settings…") { LoginItemService.openSystemSettings() }
+        }
+        Divider()
+
         Button("Quit") { NSApplication.shared.terminate(nil) }
             .keyboardShortcut("q")
     }

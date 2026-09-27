@@ -11,6 +11,8 @@ final class AppModel: ObservableObject {
     @Published private(set) var activeBundleID: String?
     /// Problem with config.json, or the last failed menu action.
     @Published private(set) var errorMessage: String?
+    @Published private(set) var launchAtLogin = LoginItemService.isEnabled
+    @Published private(set) var launchAtLoginNeedsApproval = LoginItemService.requiresApproval
 
     private let inputSources: InputSourceService
     let switcher: Switcher
@@ -104,6 +106,23 @@ final class AppModel: ObservableObject {
         NSPasteboard.general.setString(id, forType: .string)
     }
 
+    func toggleLaunchAtLogin() {
+        do {
+            try LoginItemService.setEnabled(!launchAtLogin)
+        } catch {
+            errorMessage = "Launch at login: \(error.localizedDescription)"
+        }
+        refreshLoginItem()
+        if launchAtLoginNeedsApproval {
+            LoginItemService.openSystemSettings()
+        }
+    }
+
+    func refreshLoginItem() {
+        launchAtLogin = LoginItemService.isEnabled
+        launchAtLoginNeedsApproval = LoginItemService.requiresApproval
+    }
+
     func reloadConfig() {
         switcher.configStore.load()
         sources = inputSources.allSelectableKeyboardSources()
@@ -134,5 +153,7 @@ final class AppModel: ObservableObject {
         memory = switcher.stateStore.state.memory
         activeBundleID = switcher.lastActivation?.bundleID
         errorMessage = switcher.configStore.lastError
+        // The login item status can change in System Settings while the app runs.
+        refreshLoginItem()
     }
 }

@@ -33,3 +33,7 @@ Files live in the sandbox container:
 Use **Open Config Folder** in the menu to get there, and **Reload Config** after editing. Only `version` is required; missing fields use defaults. If `config.json` is malformed, the app keeps the last good config and shows the error at the top of the menu.
 
 Resolution order when an app is activated: paused → ignore list → rule → memory → `defaultSourceID` → keep the current layout and remember it.
+
+## Launch at login
+
+Toggle **Launch at Login** in the menu. It uses `SMAppService.mainApp` and works reliably only when the app runs from `/Applications`, so install with `make install` first. If macOS asks for approval, the menu shows **Allow in Login Items Settings…**, which opens System Settings → General → Login Items.
