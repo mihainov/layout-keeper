@@ -1,5 +1,7 @@
 # LayoutKeeper
 
+[![CI](https://github.com/mihainov/layout-keeper/actions/workflows/ci.yml/badge.svg)](https://github.com/mihainov/layout-keeper/actions/workflows/ci.yml)
+
 A minimal macOS menu bar app that remembers the keyboard layout (input source) used in each app and restores it automatically when that app is activated. See [PLAN.md](PLAN.md) for the full design.
 
 - **Per-app memory:** learns and restores the last layout used in each app.
@@ -109,6 +111,8 @@ After an automatic switch, a small overlay near the bottom of the screen with th
 - Hardened Runtime is enabled. Release builds don't carry `get-task-allow`.
 
 `TISSelectInputSource` works under the sandbox. This was verified by `make test-integration`, which runs inside the sandboxed host app. The sandbox therefore stays on.
+
+CI runs `make build`, `make test` and `make audit` on every push and pull request.
 
 `make audit` checks the sources for forbidden APIs, checks the entitlements file for network keys, and prints the signed entitlements and code-signing flags. For extra assurance, run the app under [LuLu](https://objective-see.org/products/lulu.html) and confirm there are no connection attempts, and check that System Settings → Privacy & Security doesn't list LayoutKeeper under Accessibility or Input Monitoring.
 
