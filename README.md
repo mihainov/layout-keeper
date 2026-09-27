@@ -70,7 +70,21 @@ Menu quick actions (Pause, Pin, Ignore) rewrite only the keys they change and ke
 
 ## Menu
 
-The menu bar shows the current layout's short label: the `labels` entry, else the language code (e.g. `EN`, `BG`). A `⏸` suffix means paused. The menu lists all layouts for switching, so it can replace the system Input menu. To hide that one, turn off **Show Input menu in menu bar** in System Settings → Keyboard → Text Input → Edit.
+The menu bar shows the current layout's short label: the `labels` entry, else the language code (e.g. `EN`, `BG`). A `⏸` suffix means paused. The menu lists all layouts for switching, so it can replace the system Input menu.
+
+To hide the system Input menu, turn off **Show Input menu in menu bar** in System Settings → Keyboard → Text Input → Edit, or run:
+
+```sh
+defaults write com.apple.TextInputMenu visible -bool false && killall SystemUIServer
+```
+
+To show it again:
+
+```sh
+defaults write com.apple.TextInputMenu visible -bool true && killall SystemUIServer
+```
+
+This isn't a menu toggle because the App Sandbox blocks writing another app's preferences and restarting `SystemUIServer`.
 
 - Layout list with the current one checked.
 - Status and the frontmost app with what applies to it (Rule / Memory / Default / Ignored).
