@@ -123,3 +123,7 @@ After an automatic switch, a small overlay near the bottom of the screen with th
 ## Symbol consistency with Ukelele
 
 To make Shift + number-row symbols behave like US English while typing Bulgarian (or another layout), build a custom layout with [Ukelele](https://software.sil.org/ukelele/). See Appendix A in [PLAN.md](PLAN.md). Custom layouts work as rule targets. Use **Copy Current Layout ID** to get the ID, which looks like `org.sil.ukelele.keyboardlayout.<name>.<layout>`.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
