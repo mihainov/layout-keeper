@@ -18,6 +18,7 @@ final class AppModel: ObservableObject {
     let switcher: Switcher
     private let hud = HUDController()
     private var terminateObserver: NSObjectProtocol?
+    private var sigtermSource: DispatchSourceSignal?
 
     init(inputSources: InputSourceService = TISInputSourceService()) {
         self.inputSources = inputSources
@@ -32,6 +33,12 @@ final class AppModel: ObservableObject {
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.switcher.stateStore.flush() }
         }
+        // `pkill` / logout send SIGTERM; quit normally so pending state is flushed.
+        signal(SIGTERM, SIG_IGN)
+        let source = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
+        source.setEventHandler { NSApplication.shared.terminate(nil) }
+        source.resume()
+        sigtermSource = source
     }
 
     // MARK: - Derived state

@@ -6,7 +6,7 @@ DERIVED      := build
 APP_PATH     := $(DERIVED)/Build/Products/$(CONFIG)/$(APP_NAME).app
 INSTALL_DIR  := /Applications
 
-.PHONY: all generate build run install test test-integration clean
+.PHONY: all generate build run install test test-integration audit clean
 
 all: build
 
@@ -41,3 +41,18 @@ clean:
 test-integration: generate
 	TEST_RUNNER_LK_INTEGRATION=1 xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
 		-derivedDataPath $(DERIVED) -destination "platform=macOS,arch=arm64" test
+
+# Security audit from PLAN.md section 8: no network or input-monitoring APIs, no network entitlements.
+audit: build
+	@echo "== Forbidden APIs in Sources/"
+	@! grep -rnE "URLSession|NSURLConnection|Network\.framework|import Network|CGEventTap|AXUIElement|IOHIDManager" Sources/ || \
+		(echo "FAIL: forbidden API found"; exit 1)
+	@echo "none"
+	@echo "== Network entitlements"
+	@! grep -n "network" Resources/LayoutKeeper.entitlements || (echo "FAIL: network entitlement"; exit 1)
+	@echo "none"
+	@echo "== Signed entitlements and flags"
+	@codesign -d --entitlements - --xml $(APP_PATH) 2>/dev/null | plutil -p -
+	@codesign -dv $(APP_PATH) 2>&1 | grep -E "flags="
+	@codesign -d --entitlements - --xml $(APP_PATH) 2>/dev/null | grep -q "network" && \
+		(echo "FAIL: signed app has network entitlement"; exit 1) || echo "OK: no network entitlements, sandboxed"
