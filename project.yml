@@ -50,6 +50,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.local.LayoutKeeperTests
+        # Current XCTest is built for macOS 14; only the test bundle needs it, the app still targets 13.
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/LayoutKeeper.app/Contents/MacOS/LayoutKeeper"
         BUNDLE_LOADER: "$(TEST_HOST)"
