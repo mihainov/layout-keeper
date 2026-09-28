@@ -109,6 +109,7 @@ After an automatic switch, a small overlay near the bottom of the screen with th
 - No Accessibility or Input Monitoring permission. No `CGEventTap`, `AXUIElement` or `IOHIDManager`. Layouts are read and selected with the Text Input Sources (TIS) API, and app switches come from `NSWorkspace` notifications.
 - No third-party dependencies: AppKit, SwiftUI, Carbon (HIToolbox) and ServiceManagement only.
 - Hardened Runtime is enabled. Release builds don't carry `get-task-allow`.
+- Bundle IDs are redacted (`<private>`) in the system log, and per-activation messages are debug level, so they aren't persisted. To see them while debugging: `log stream --level debug --predicate 'subsystem == "dev.local.LayoutKeeper"'` (bundle IDs stay redacted unless private data logging is enabled).
 
 `TISSelectInputSource` works under the sandbox. This was verified by `make test-integration`, which runs inside the sandboxed host app. The sandbox therefore stays on.
 

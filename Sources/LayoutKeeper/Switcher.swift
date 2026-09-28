@@ -15,6 +15,8 @@ final class Switcher {
     private let appMonitor = AppMonitor()
     private let sourceChangeMonitor = SourceChangeMonitor()
     private let ownBundleID = Bundle.main.bundleIdentifier
+    /// Bundle IDs are logged as private and per-activation messages at debug level (not persisted),
+    /// so the system log doesn't keep a timeline of the apps the user works in.
     private let log = Logger(subsystem: "dev.local.LayoutKeeper", category: "Switcher")
 
     /// Called after the switcher handles an activation or a source change.
@@ -53,16 +55,16 @@ final class Switcher {
         let available = Set(inputSources.allSelectableKeyboardSources().map(\.id))
 
         if let remembered = stateStore.state.memory[bundleID], !available.contains(remembered) {
-            log.info("Dropping stale memory \(remembered, privacy: .public) for \(bundleID, privacy: .public)")
+            log.info("Dropping stale memory \(remembered, privacy: .public) for \(bundleID, privacy: .private)")
             stateStore.removeMemory(for: bundleID)
         }
         if let rule = config.rules[bundleID], !available.contains(rule) {
-            log.error("Rule for \(bundleID, privacy: .public) targets missing source \(rule, privacy: .public)")
+            log.error("Rule for \(bundleID, privacy: .private) targets missing source \(rule, privacy: .public)")
         }
 
         let decision = SwitchEngine.resolve(bundleID: bundleID, config: config, state: stateStore.state,
                                             availableSourceIDs: available)
-        log.notice("Activated \(bundleID, privacy: .public): \(String(describing: decision), privacy: .public)")
+        log.debug("Activated \(bundleID, privacy: .private): \(String(describing: decision), privacy: .public)")
         switch decision {
         case .ignore:
             break
@@ -88,7 +90,7 @@ final class Switcher {
         let config = configStore.config
         let frontmost = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         let current = inputSources.current()
-        log.notice("Source changed to \(current?.id ?? "nil", privacy: .public), frontmost \(frontmost ?? "nil", privacy: .public), active \(self.activeBundleID ?? "nil", privacy: .public)")
+        log.debug("Source changed to \(current?.id ?? "nil", privacy: .public), frontmost \(frontmost ?? "nil", privacy: .private), active \(self.activeBundleID ?? "nil", privacy: .private)")
         guard config.enabled,
               let bundleID = activeBundleID,
               // An activation is still queued; the change belongs to neither app for sure.
@@ -112,7 +114,7 @@ final class Switcher {
                 self.pendingVerify = nil
                 let current = self.inputSources.current()?.id
                 guard current != target else { return }
-                self.log.notice("Switch to \(target, privacy: .public) for \(bundleID, privacy: .public) was reverted to \(current ?? "nil", privacy: .public); retrying")
+                self.log.notice("Switch to \(target, privacy: .public) for \(bundleID, privacy: .private) was reverted to \(current ?? "nil", privacy: .public); retrying")
                 self.inputSources.select(id: target)
                 self.onUpdate?(self.lastActivation)
             }
