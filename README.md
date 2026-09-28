@@ -109,12 +109,13 @@ After an automatic switch, a small overlay near the bottom of the screen with th
 - No Accessibility or Input Monitoring permission. No `CGEventTap`, `AXUIElement` or `IOHIDManager`. Layouts are read and selected with the Text Input Sources (TIS) API, and app switches come from `NSWorkspace` notifications.
 - No third-party dependencies: AppKit, SwiftUI, Carbon (HIToolbox) and ServiceManagement only.
 - Hardened Runtime is enabled. Release builds don't carry `get-task-allow`.
+- Bundle IDs are redacted (`<private>`) in the system log, and per-activation messages are debug level, so they aren't persisted. To see them while debugging: `log stream --level debug --predicate 'subsystem == "dev.local.LayoutKeeper"'` (bundle IDs stay redacted unless private data logging is enabled).
 
 `TISSelectInputSource` works under the sandbox. This was verified by `make test-integration`, which runs inside the sandboxed host app. The sandbox therefore stays on.
 
 CI runs `make build`, `make test` and `make audit` on every push and pull request.
 
-`make audit` checks the sources for forbidden APIs, checks the entitlements file for network keys, and prints the signed entitlements and code-signing flags. For extra assurance, run the app under [LuLu](https://objective-see.org/products/lulu.html) and confirm there are no connection attempts, and check that System Settings → Privacy & Security doesn't list LayoutKeeper under Accessibility or Input Monitoring.
+`make audit` checks the sources for forbidden APIs (networking and sockets, web views, input monitoring, running processes or AppleScript, and loading code at runtime; see `FORBIDDEN_APIS` in the Makefile), checks the entitlements file for network keys, and prints the signed entitlements and code-signing flags. For extra assurance, run the app under [LuLu](https://objective-see.org/products/lulu.html) and confirm there are no connection attempts, and check that System Settings → Privacy & Security doesn't list LayoutKeeper under Accessibility or Input Monitoring.
 
 ## Known limitations
 
