@@ -115,7 +115,7 @@ After an automatic switch, a small overlay near the bottom of the screen with th
 
 CI runs `make build`, `make test` and `make audit` on every push and pull request.
 
-`make audit` checks the sources for forbidden APIs, checks the entitlements file for network keys, and prints the signed entitlements and code-signing flags. For extra assurance, run the app under [LuLu](https://objective-see.org/products/lulu.html) and confirm there are no connection attempts, and check that System Settings → Privacy & Security doesn't list LayoutKeeper under Accessibility or Input Monitoring.
+`make audit` checks the sources for forbidden APIs (networking and sockets, web views, input monitoring, running processes or AppleScript, and loading code at runtime; see `FORBIDDEN_APIS` in the Makefile), checks the entitlements file for network keys, and prints the signed entitlements and code-signing flags. For extra assurance, run the app under [LuLu](https://objective-see.org/products/lulu.html) and confirm there are no connection attempts, and check that System Settings → Privacy & Security doesn't list LayoutKeeper under Accessibility or Input Monitoring.
 
 ## Known limitations
 

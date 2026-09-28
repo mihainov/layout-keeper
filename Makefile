@@ -42,10 +42,23 @@ test-integration: generate
 	TEST_RUNNER_LK_INTEGRATION=1 xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Debug \
 		-derivedDataPath $(DERIVED) -destination "platform=macOS,arch=arm64" test
 
-# Security audit from PLAN.md section 8: no network or input-monitoring APIs, no network entitlements.
+# Matches a call to a bare function name (not a method or a longer identifier).
+CALL := (^|[^[:alnum:]_.])
+
+# Patterns (extended regex, no spaces) for APIs the app must never use: networking,
+# input monitoring, web content, running processes or scripts, and loading code at runtime.
+FORBIDDEN_APIS := \
+	URLSession NSURLConnection NWConnection NWListener Network\.framework import[[:space:]]+Network \
+	CFSocket CFStream NSStream $(CALL)socket\( $(CALL)getaddrinfo\( $(CALL)gethostbyname \
+	import[[:space:]]+WebKit WKWebView \
+	CGEventTap AXUIElement IOHIDManager addGlobalMonitorForEvents \
+	NSAppleScript OSAScript NSUserAppleScriptTask $(CALL)Process\( NSTask posix_spawn $(CALL)popen\( $(CALL)system\( \
+	$(CALL)dlopen\( Bundle\((path|url):
+
+# Security audit from PLAN.md section 8: no forbidden APIs (above), no network entitlements.
 audit: build
 	@echo "== Forbidden APIs in Sources/"
-	@! grep -rnE "URLSession|NSURLConnection|Network\.framework|import Network|CGEventTap|AXUIElement|IOHIDManager" Sources/ || \
+	@! grep -rnE $(foreach p,$(FORBIDDEN_APIS),-e '$(p)') Sources/ || \
 		(echo "FAIL: forbidden API found"; exit 1)
 	@echo "none"
 	@echo "== Network entitlements"
